@@ -1,5 +1,5 @@
 /**
- * Copies a BMP piece by piece, just because.
+ * Resizes a BMP
  */
 
 #include <math.h>
@@ -9,26 +9,8 @@
 
 #include "bmp.h"
 
-void update_headers(BITMAPINFOHEADER *bi, BITMAPFILEHEADER *bf, float scale)
-{
-    bi -> biWidth *= scale;
-    bi -> biHeight *= scale;
-
-    bf -> bfSize -= bi -> biSizeImage;
-    int padding = (4 - ((bi -> biWidth) * sizeof(RGBTRIPLE)) % 4) % 4;
-    bi -> biSizeImage = ((bi -> biWidth * sizeof(RGBTRIPLE)) + padding) * abs(bi -> biHeight);
-    bf -> bfSize += bi -> biSizeImage;
-}
-
-void write_line(RGBTRIPLE *buf, int count, FILE *outptr, int padding)
-{
-    fwrite(buf, sizeof(RGBTRIPLE), count, outptr);
-    // Add padding to outpt
-    for (int i = 0; i < padding; i++)
-    {
-        fputc(0x00, outptr);
-    }
-}
+void update_headers(BITMAPINFOHEADER *bi, BITMAPFILEHEADER *bf, float scale);
+void write_line(RGBTRIPLE *buf, int count, FILE *outptr, int padding);
 
 int main(int argc, char *argv[])
 {
@@ -139,4 +121,25 @@ int main(int argc, char *argv[])
 
     // success
     return 0;
+}
+
+void update_headers(BITMAPINFOHEADER *bi, BITMAPFILEHEADER *bf, float scale)
+{
+    bi -> biWidth *= scale;
+    bi -> biHeight *= scale;
+
+    bf -> bfSize -= bi -> biSizeImage;
+    int padding = (4 - ((bi -> biWidth) * sizeof(RGBTRIPLE)) % 4) % 4;
+    bi -> biSizeImage = ((bi -> biWidth * sizeof(RGBTRIPLE)) + padding) * abs(bi -> biHeight);
+    bf -> bfSize += bi -> biSizeImage;
+}
+
+void write_line(RGBTRIPLE *buf, int count, FILE *outptr, int padding)
+{
+    fwrite(buf, sizeof(RGBTRIPLE), count, outptr);
+    // Add padding to outpt
+    for (int i = 0; i < padding; i++)
+    {
+        fputc(0x00, outptr);
+    }
 }
